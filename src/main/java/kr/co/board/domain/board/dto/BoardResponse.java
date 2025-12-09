@@ -6,12 +6,12 @@ import lombok.Builder;
 public class BoardResponse {
 
     @Builder
-    public record boardList(
+    public record boardResponse(
             Long id,
             String title
     ) {
-        public static boardList from(Board board) {
-            return boardList.builder()
+        public static boardResponse from(Board board) {
+            return boardResponse.builder()
                     .title(board.getTitle())
                     .build();
         }

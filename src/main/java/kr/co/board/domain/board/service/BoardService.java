@@ -40,8 +40,16 @@ public class BoardService {
     }
 
     @Transactional(readOnly = true)
-    public Page<BoardResponse.boardList> getBoard(Pageable pageable) {
+    public Page<BoardResponse.boardResponse> getBoardList(Pageable pageable) {
         return boardRepository.findAll(pageable)
-                .map(BoardResponse.boardList::from);
+                .map(BoardResponse.boardResponse::from);
+    }
+
+    @Transactional(readOnly = true)
+    public BoardResponse.boardResponse getBoard(Long boardId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
+
+        return BoardResponse.boardResponse.from(board);
     }
 }

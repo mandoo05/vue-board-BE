@@ -34,12 +34,18 @@ public class BoardController {
         return ApiResponse.success();
     }
 
-    @Operation(summary = "게시판 목록 API")
+    @Operation(summary = "게시판 목록 조회 API")
     @GetMapping
-    public ApiResponse<Page<BoardResponse.boardList>> getBoard(
-            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
-    ) {
-        var data = boardService.getBoard(pageable);
+    public ApiResponse<Page<BoardResponse.boardResponse>> getBoard(
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        var data = boardService.getBoardList(pageable);
+        return ApiResponse.success(data);
+    }
+
+    @Operation(summary = "특정 게시판 조회 API")
+    @GetMapping("/{boardId}")
+    public ApiResponse<BoardResponse.boardResponse> getBoard(@PathVariable Long boardId) {
+        var data = boardService.getBoard(boardId);
         return ApiResponse.success(data);
     }
 }
