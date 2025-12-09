@@ -5,7 +5,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -15,20 +14,20 @@ public class RefreshTokenService {
 
   private final StringRedisTemplate redisTemplate;
 
-  public void save(UUID memberId, String refreshToken, Duration ttl) {
+  public void save(Long memberId, String refreshToken, Duration ttl) {
     redisTemplate.opsForValue().set(buildKey(memberId), refreshToken, ttl);
   }
 
-  public boolean validate(UUID memberId, String refreshToken) {
+  public boolean validate(Long memberId, String refreshToken) {
     String stored = redisTemplate.opsForValue().get(buildKey(memberId));
     return stored != null && stored.equals(refreshToken);
   }
 
-  public void delete(UUID memberId) {
+  public void delete(Long memberId) {
     redisTemplate.delete(buildKey(memberId));
   }
 
-  private String buildKey(UUID memberId) {
+  private String buildKey(Long memberId) {
     return KEY_PREFIX + memberId;
   }
 }

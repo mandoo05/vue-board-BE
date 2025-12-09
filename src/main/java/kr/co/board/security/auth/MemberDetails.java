@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 @AllArgsConstructor
 public class MemberDetails implements UserDetails {
@@ -19,7 +18,7 @@ public class MemberDetails implements UserDetails {
     return member.getNickname();
   }
 
-  public UUID getId() {
+  public Long getId() {
     return member.getId();
   }
 

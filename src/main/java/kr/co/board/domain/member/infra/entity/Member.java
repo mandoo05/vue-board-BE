@@ -8,7 +8,6 @@ import lombok.*;
 import org.hibernate.annotations.Where;
 import org.hibernate.annotations.SQLDelete;
 
-import java.util.UUID;
 
 @Entity
 @Builder
@@ -19,10 +18,9 @@ import java.util.UUID;
 @SQLDelete(sql = "UPDATE member SET deleted_at = NOW() WHERE id = ?")
 @Where(clause = "deleted_at IS NULL")
 public class Member extends BaseSoftDeleteTimeEntity {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false, unique = true)
     private String username;
