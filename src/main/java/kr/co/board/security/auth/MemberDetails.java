@@ -62,6 +62,6 @@ public class MemberDetails implements UserDetails {
 
   @Override
   public boolean isEnabled() {
-    return true;
+    return MemberStatus.ACTIVE.equals(member.getStatus());
   }
 }

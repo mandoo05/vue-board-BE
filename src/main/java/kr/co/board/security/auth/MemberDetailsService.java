@@ -3,6 +3,7 @@ package kr.co.board.security.auth;
 import kr.co.board.domain.member.infra.entity.Member;
 import kr.co.board.domain.member.infra.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -16,10 +17,12 @@ public class MemberDetailsService implements UserDetailsService {
   @Override
   @Transactional(readOnly = true)
   public MemberDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    Member member =
-        memberRepository
-            .findByUsername(username)
+    Member member = memberRepository.findByUsername(username)
             .orElseThrow(() -> new UsernameNotFoundException("Invalid username or password"));
+
+    if (member.getStatus() != MemberStatus.ACTIVE) {
+      throw new DisabledException("User is not active");
+    }
     return new MemberDetails(member);
   }
 }

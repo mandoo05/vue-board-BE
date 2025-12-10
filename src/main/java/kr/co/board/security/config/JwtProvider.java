@@ -22,7 +22,7 @@ public class JwtProvider {
   @Value("${jwt.refresh}")
   private String refreshKey;
 
-  public final int JWT_EXPIRATION_MILLI_TIME = 60 * 60 * 1000;
+  public final int JWT_EXPIRATION_MILLI_TIME = 15 * 60 * 1000;
   public final int REFRESH_EXPIRATION_MILLI_TIME = 15 * 24 * 60 * 60 * 1000;
 
   public static final String TOKEN_PREFIX_JWT = "Bearer ";

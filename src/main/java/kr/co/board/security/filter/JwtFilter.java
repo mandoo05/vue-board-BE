@@ -9,8 +9,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.co.board.config.exception.ErrorCode;
-import kr.co.board.config.response.ApiResponse;
+import kr.co.board.config.response.ErrorResponse;
 import kr.co.board.security.auth.MemberDetails;
+import kr.co.board.security.auth.MemberStatus;
 import kr.co.board.security.config.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +53,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
     try {
       MemberDetails memberDetails = jwtProvider.parseToken(token, jwtProvider.getJwtKey());
+
+      if (memberDetails.getStatus() != MemberStatus.ACTIVE) {
+        writeErrorResponse(response, ErrorCode.UNAUTHORIZED);
+        return;
+      }
+
       Authentication authentication =
               new UsernamePasswordAuthenticationToken(
                       memberDetails, null, memberDetails.getAuthorities());
@@ -75,11 +82,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
     log.error("[{}] {}", errorCode.getCode(), errorCode.getMessage());
 
-    ApiResponse<?> body = ApiResponse.error(
-            errorCode.getStatus().value(),
-            errorCode.getCode(),
-            errorCode.getMessage()
-    );
+    ErrorResponse body = ErrorResponse.builder()
+            .status(errorCode.getStatus().value())
+            .code(errorCode.getCode())
+            .message(errorCode.getMessage())
+            .errors(null)
+            .build();
 
     response.setStatus(errorCode.getStatus().value());
     response.setContentType("application/json;charset=UTF-8");

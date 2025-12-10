@@ -1,6 +1,6 @@
 package kr.co.board.config.exception;
 
-import kr.co.board.config.response.ApiResponse;
+import kr.co.board.config.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -8,63 +8,78 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Optional;
+import java.util.List;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     /**
-     * CustomException 잡기
+     * CustomException
      */
     @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ApiResponse<?>> handleCustomException(CustomException e) {
-        ErrorCode error = e.getErrorCode();
-        log.error("[CustomException] {}", error.getMessage());
+    public ResponseEntity<ErrorResponse> handleCustomException(CustomException ex) {
 
-        return ResponseEntity
-                .status(error.getStatus())
-                .body(ApiResponse.error(
-                        error.getStatus().value(),
-                        error.getCode(),
-                        error.getMessage()
-                ));
+        ErrorCode errorCode = ex.getErrorCode();
+
+        log.error("[CustomException] code={}, message={}",
+                errorCode.getCode(),
+                ex.getMessageToClient()
+        );
+
+        ErrorResponse body = ErrorResponse.builder()
+                .status(errorCode.getStatus().value())
+                .code(errorCode.getCode())
+                .message(ex.getMessageToClient())   // ★ 여기만 바꾸면 됨
+                .errors(null)
+                .build();
+
+        return ResponseEntity.status(errorCode.getStatus()).body(body);
     }
 
     /**
-     * @Valid 유효성 검사 실패
+     * Validation 실패 (@Valid)
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<?>> handleValidationException(MethodArgumentNotValidException e) {
+    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
 
-        String message = Optional.ofNullable(e.getBindingResult().getFieldError())
-                .map(FieldError::getDefaultMessage)
-                .orElse("유효성 검증에 실패했습니다.");
+        List<ErrorResponse.FieldErrorDetail> fieldErrors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(err -> ErrorResponse.FieldErrorDetail.builder()
+                        .field(err.getField())
+                        .message(err.getDefaultMessage())
+                        .build())
+                .toList();
 
-        return ResponseEntity
-                .badRequest()
-                .body(ApiResponse.error(
-                        400,
-                        ErrorCode.VALIDATION_ERROR.getCode(),
-                        message
-                ));
+        ErrorResponse body = ErrorResponse.builder()
+                .status(400)
+                .code(ErrorCode.VALIDATION_ERROR.getCode())
+                .message(ErrorCode.VALIDATION_ERROR.getMessage())
+                .errors(fieldErrors)
+                .build();
+
+        return ResponseEntity.badRequest().body(body);
     }
 
     /**
-     * 예상 못한 서버 오류
+     * 예상하지 못한 서버 오류
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<?>> handleException(Exception e) {
-        log.error("[Unexpected Exception]", e);
+    public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex) {
 
-        ErrorCode error = ErrorCode.INTERNAL_SERVER_ERROR;
+        log.error("[Unexpected Exception]", ex);
 
-        return ResponseEntity
-                .status(error.getStatus())
-                .body(ApiResponse.error(
-                        error.getStatus().value(),
-                        error.getCode(),
-                        error.getMessage()
-                ));
+        ErrorCode e = ErrorCode.INTERNAL_SERVER_ERROR;
+
+        ErrorResponse body = ErrorResponse.builder()
+                .status(e.getStatus().value())
+                .code(e.getCode())
+                .message(e.getMessage())
+                .errors(null)
+                .build();
+
+        return ResponseEntity.status(e.getStatus()).body(body);
     }
 }
+

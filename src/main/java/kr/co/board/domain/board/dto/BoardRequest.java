@@ -1,6 +1,15 @@
 package kr.co.board.domain.board.dto;
 
-public record BoardRequest(
-        String title,
-        String content
-) {}
+import jakarta.validation.constraints.NotBlank;
+
+public class BoardRequest {
+    public record BoardPostRequest(
+            @NotBlank String title,
+            @NotBlank String content
+    ) {}
+
+    public record BoardUpdateRequest(
+            @NotBlank String title,
+            @NotBlank String content
+    ) {}
+}

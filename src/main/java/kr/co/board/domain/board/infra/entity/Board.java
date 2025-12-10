@@ -35,6 +35,8 @@ public class Board extends BaseSoftDeleteTimeEntity {
     @Column(nullable = false)
     private String content;
 
-    @Enumerated(EnumType.STRING)
-    private BoardStatus status;
+    public void update(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
 }

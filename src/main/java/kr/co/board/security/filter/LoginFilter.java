@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.co.board.config.exception.ErrorCode;
 import kr.co.board.config.response.ApiResponse;
+import kr.co.board.config.response.ErrorResponse;
 import kr.co.board.security.JwtResponse;
 import kr.co.board.security.auth.MemberDetails;
 import kr.co.board.security.config.CookieProvider;
@@ -85,16 +86,24 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
   @Override
   protected void unsuccessfulAuthentication(
-      HttpServletRequest request, HttpServletResponse response, AuthenticationException failed)
-      throws IOException, ServletException {
-    response.setStatus(HttpStatus.UNAUTHORIZED.value());
+          HttpServletRequest request,
+          HttpServletResponse response,
+          AuthenticationException failed
+  ) throws IOException, ServletException {
+
+    ErrorCode error = ErrorCode.INVALID_CREDENTIALS;
+
+    ErrorResponse body = ErrorResponse.builder()
+            .status(error.getStatus().value())
+            .code(error.getCode())
+            .message(error.getMessage())
+            .errors(null)
+            .build();
+
+    response.setStatus(error.getStatus().value());
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setCharacterEncoding("UTF-8");
-    ApiResponse<?> rtn = ApiResponse.error(
-            ErrorCode.INVALID_CREDENTIALS.getStatus().value(),
-            ErrorCode.INVALID_CREDENTIALS.getCode(),
-            ErrorCode.INVALID_CREDENTIALS.getMessage()
-    );
-    objectMapper.writeValue(response.getWriter(), rtn);
+
+    objectMapper.writeValue(response.getWriter(), body);
   }
 }

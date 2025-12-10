@@ -38,11 +38,11 @@ public class MemberAuthService {
     @Transactional
     public void save(MemberAuthRequest dto) {
         if (!dto.password().equals(dto.confirmPassword())) {
-            throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
+            throw new CustomException(ErrorCode.VALIDATION_ERROR, "비밀번호가 일치하지 않습니다.");
         }
 
         if (memberRepository.findByUsername(dto.username()).isPresent()) {
-            throw new CustomException(ErrorCode.DUPLICATE_USER);
+            throw new CustomException(ErrorCode.DUPLICATE_RESOURCE, "이미 사용 중인 아이디입니다: " + dto.username());
         }
 
         Member member = Member.builder()
