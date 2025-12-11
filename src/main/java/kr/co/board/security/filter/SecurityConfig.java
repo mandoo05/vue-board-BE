@@ -47,7 +47,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(new JwtFilter(jwtProvider), LoginFilter.class)
+                .addFilterAfter(new JwtFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(
                         loginFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(
@@ -64,7 +64,7 @@ public class SecurityConfig {
         // 허용할 도메인 목록 설정
         config.setAllowedOrigins(
                 Arrays.asList(
-                        "http://localhost:3000", "http://localhost:8080", "http://192.168.0.12:3000", "null"));
+                        "http://localhost:5174", "http://localhost:5173"));
 
         // 모든 HTTP 메서드 허용
         config.setAllowedMethods(

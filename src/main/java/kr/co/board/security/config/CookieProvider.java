@@ -9,16 +9,11 @@ import java.util.Arrays;
 
 @Component
 public class CookieProvider {
-  private final boolean secure;
-
-  public CookieProvider(@Value("${cookie.secure:true}") boolean secure) {
-    this.secure = secure;
-  }
 
   public Cookie buildCookie(String name, String value, int maxAge) {
     Cookie cookie = new Cookie(name, value);
     cookie.setHttpOnly(true);
-    cookie.setSecure(secure);
+    cookie.setSecure(true);
     cookie.setPath("/");
     cookie.setMaxAge(maxAge);
 

@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 @Validated
 @RequestMapping("/api/auth")
 @RestController
@@ -62,5 +65,14 @@ public class MemberAuthController {
         response.addCookie(deleteCookie);
 
         return ApiResponse.noContent();
+    }
+
+    @GetMapping("/cookie-test")
+    public String cookieTest(HttpServletRequest request) {
+        if (request.getCookies() == null) return "no cookies";
+
+        return Arrays.stream(request.getCookies())
+                .map(c -> c.getName() + "=" + c.getValue())
+                .collect(Collectors.joining(", "));
     }
 }

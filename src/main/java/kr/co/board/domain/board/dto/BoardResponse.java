@@ -36,6 +36,8 @@ public class BoardResponse {
     public record GetBoardResponse(
             @Schema(description = "게시글 ID")
             Long id,
+            @Schema(description = "게시글 ID")
+            Long memberId,
             @Schema(description = "게시글 제목")
             String title,
             @Schema(description = "게시글 내용")
@@ -50,6 +52,7 @@ public class BoardResponse {
         public static GetBoardResponse from(Board board) {
             return GetBoardResponse.builder()
                     .id(board.getId())
+                    .memberId(board.getMember().getId())
                     .title(board.getTitle())
                     .content(board.getContent())
                     .writer(board.getMember().getNickname())

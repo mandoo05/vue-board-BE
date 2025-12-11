@@ -3,6 +3,10 @@ package kr.co.board.config.exception;
 import kr.co.board.config.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -80,6 +84,25 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(e.getStatus()).body(body);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean anonymous = auth == null || auth instanceof AnonymousAuthenticationToken;
+
+        ErrorCode error = anonymous ? ErrorCode.UNAUTHORIZED : ErrorCode.FORBIDDEN;
+
+        log.warn("[AccessDeniedException] {}", ex.getMessage());
+
+        ErrorResponse body = ErrorResponse.builder()
+                .status(error.getStatus().value())
+                .code(error.getCode())
+                .message(error.getMessage())
+                .errors(null)
+                .build();
+
+        return ResponseEntity.status(error.getStatus()).body(body);
     }
 }
 
